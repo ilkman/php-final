@@ -1,4 +1,6 @@
 <?php
+
+// database connection
 class Database
 {
     private $host = "localhost";

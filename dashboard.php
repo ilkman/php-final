@@ -1,44 +1,51 @@
 <?php
+//fetch database connection, encryption function, session and password generator
 session_start();
 require_once "db.php";
 require_once "encryption.php";
 require_once "passwordgenerator.php";
 
-
+//not logged in? send back to login
 if (!isset($_SESSION["user_id"])) {
     header("Location: login.php");
     exit;
 }
 
+//clear messages and pass field
 $message = "";
 $passwordFieldValue = "";
 
-
+//clear the pass generator fields
 $length = $lower = $upper = $numbers = $special = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["generate"])) {
 
+        //get from imputs
         $length = (int)$_POST["length"];
         $lower = (int)$_POST["lower"];
         $upper = (int)$_POST["upper"];
         $numbers = (int)$_POST["numbers"];
         $special = (int)$_POST["special"];
 
+        //generate pass using the class
         $generator = new PasswordGenerator();
         $passwordFieldValue = $generator->generate($length, $lower, $upper, $numbers, $special);
 
         $_SESSION["generated_password"] = $passwordFieldValue;
     } elseif (isset($_POST["save"])) {
+        //get from inputs
         $service = trim($_POST["service"]);
         $passwordFieldValue = $_POST["password"];
 
+        //encrypt the password using AES
         $encryptedPassword = encryptAES($passwordFieldValue, $_SESSION["aes_key"]);
 
         try {
             $db = new Database();
             $conn = $db->getConnection();
 
+            //insert data to database
             $stmt = $conn->prepare("INSERT INTO passwords (user_id, service_name, encrypted_password) VALUES (?, ?, ?)");
             $stmt->execute([$_SESSION["user_id"], $service, $encryptedPassword]);
 
