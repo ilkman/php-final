@@ -59,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <title>Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
